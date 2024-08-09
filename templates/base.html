@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get it Done!</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+    <style>
+        body {
+        background-color: darkgrey;
+        }
+        .segment-buttons {
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.5s ease;
+        }
+
+        .segment:hover .segment-buttons {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="margin-top: 50px;" class="ui container">
+        <h1 class="ui center aligned header">Get. It. Done.</h1>
+
+        <form class="ui form" action="/add" method="post">
+            <div class="field">
+                <label>Start your list!</label>
+                <input type="text" name="title" placeholder="Enter To-do item..."><br>
+            </div>
+            <button class="ui blue button" type="submit">Add</button>
+        </form>
+
+        <hr>
+
+        {% for todo in todo_list %}
+        <div class="ui segment">
+            <div class="ui grid">
+                <div class="ten wide column">
+                    <p class="ui big header">{{todo.id }} | {{ todo.title }}</p>
+
+                    {% if todo.complete == False %}
+                    <span class="ui gray label hidden content">Not Complete</span>
+                    {% else %}
+                    <span class="ui green label">Completed</span>
+                    {% endif %}
+                </div>
+                <div class="six wide column right aligned segment-buttons">
+                    <a class="ui green button" href="/update/{{ todo.id }}">✅</a>
+                    <a class="ui red button" href="/delete/{{ todo.id }}">✖</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+
+</html>

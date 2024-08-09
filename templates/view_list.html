@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ todo_list.name }}</title>
+    <style>
+         .container {
+            display: flex;
+        }
+        body {
+        padding: 20px;
+        }
+        /* Style the sidebar */
+        .sidebar {
+            width: 200px;
+            background-color: #f0f0f0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            order: -1;
+        }
+
+        /* Style the task list container */
+        .task-list-container {
+            flex: 1;
+            padding: 20px;
+        }
+
+        /* Style the list item containers */
+        .task-container {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 5px 10px;
+            margin-bottom: 5px;
+        }
+        .task-container input[type="text"] {
+            flex: 1;
+            border: none;
+            background-color: transparent;
+            margin-left: 5px;
+            outline: none;
+        }
+        .task-container input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .task-container.completed input[type="text"] {
+            text-decoration: line-through;
+            background-color: lightgreen;
+        }
+        /* Styles for checkboxes */
+        .task-checkbox {
+        appearance: none;
+        -webkit-appearance: none;
+        -mox-appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 1px solid #ccc;
+        outline: none;
+        cursor: pointer;
+        margin-right: 10px;
+        }
+        .task-checkbox:checked {
+        background-color: #007bff;
+        border-color: #007bff;
+        }
+        /* Remove default list styles */
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>Sidebar</h2>
+            <ul>
+                <li><a href="url_for(view_list)">My Task Lists</a></li>
+                <li><a href="#">Completed Tasks</a></li>
+            </ul>
+        </div>
+        <div class="task-list-container">
+            <h1>{{ todo_list.name }}</h1>
+            <form action="/add_task/{{ todo_list.id }}" method="post">
+                <input type="text" name="description" placeholder="Enter a task">
+                <button type="submit" style="display: none"></button>
+            </form>
+            <ul id="task-list-retrieved">
+                {% for item in todo_list.items %}
+                    <li class="task-container {% if item.completed %}completed{% endif %}">
+                        <input type="checkbox" class="task-checkbox" {% if item.completed %}checked{% endif %}>
+                        <input type="text" class="task-input" value="{{ item.description }}">
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script>
+        var sortable = new Sortable(document.getElementById('task-list'), {
+            animation: 150,
+            onEnd: function(evt) {
+                console.log(sortable.toArray());
+            }
+        });
+
+        var checkboxes = document.querySelectorAll('.task-checkbox');
+        checkboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                this.parentNode.classList.toggle('completed');
+            });
+        });
+
+        var inputs = document.querySelectorAll('.task-input');
+        inputs.forEach(function(input) {
+            input.addEventListener('input', function() {
+                var listId = this.parentNode.parentNode.id;
+                var tasks = document.querySelectorAll('#' + listId + ' .task-input');
+                var taskIndex = Array.prototype.indexOf.call(tasks, this);
+                var listIndex = listId.slice(-1);
+                if (listId.startsWith('list')) {
+                    listIndex = parseInt(listId.slice(-1)) - 1;
+                }
+                if (taskIndex !== -1) {
+                    window['list' + (listIndex + 1)][taskIndex] = this.value;
+                }
+            });
+        });
+
+         document.getElementById('task-input').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent form submission
+                var taskForm = document.getElementById('task-form');
+                var taskInput = document.getElementById('task-input').value.trim();
+                if (taskInput !== '') {
+                    // Submit form
+                    taskForm.submit();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
